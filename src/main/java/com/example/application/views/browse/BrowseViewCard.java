@@ -1,10 +1,12 @@
 package com.example.application.views.browse;
 
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.JsModule;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.template.Id;
 
@@ -25,7 +27,7 @@ public class BrowseViewCard extends LitTemplate {
     private Paragraph text;
 
     @Id
-    private Span badge;
+    private Button badge;
 
     public BrowseViewCard(String text, String url) {
         this.image.setSrc(url);
@@ -34,6 +36,7 @@ public class BrowseViewCard extends LitTemplate {
         this.subtitle.setText("Card subtitle");
         this.text.setText(
                 "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.");
-        this.badge.setText("Label");
+        this.badge.setIcon(VaadinIcon.CART.create());
+        this.badge.setText(" Add to Cart");
     }
 }

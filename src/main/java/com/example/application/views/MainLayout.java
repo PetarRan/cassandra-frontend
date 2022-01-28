@@ -3,6 +3,7 @@ package com.example.application.views;
 
 import com.example.application.views.browse.BrowseView;
 import com.example.application.views.cart.CartView;
+import com.example.application.views.cart.SellView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.dependency.NpmPackage;
@@ -106,6 +107,8 @@ public class MainLayout extends AppLayout {
                 new MenuItemInfo("Browse", "la la-dollar-sign", BrowseView.class), //
 
                 new MenuItemInfo("Cart", "la la-shopping-cart", CartView.class), //
+
+                new MenuItemInfo("Sell Souvenirs", "la la-wallet", SellView.class), //
 
         };
     }
