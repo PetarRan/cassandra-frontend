@@ -1,4 +1,4 @@
-package com.kaktus.application.feign_client;
+package com.example.application.feign_client;
 
 import feign.Param;
 import feign.RequestLine;

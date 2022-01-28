@@ -1,6 +1,6 @@
-package com.kaktus.application.feign_client.configuration;
+package com.example.application.feign_client.configuration;
 
-import com.kaktus.application.feign_client.*;
+import com.example.application.feign_client.ProductFeignClient;
 import feign.Client;
 import feign.Feign;
 import feign.codec.Decoder;
@@ -19,7 +19,7 @@ import org.springframework.cloud.openfeign.FeignClientsConfiguration;
 @Import(FeignClientsConfiguration.class)
 @Data
 public class FeignClientConfiguration implements ApplicationContextAware {
-    @Value("${base.path}")
+    @Value("8080")
     private String basePath;
 
     private ApplicationContext applicationContext;
@@ -29,29 +29,18 @@ public class FeignClientConfiguration implements ApplicationContextAware {
 
 
     @Bean
-    public FirmaFeignClient firmaFeignClient(){
-        return createClient(FirmaFeignClient.class,"firma/");
-    }
+    public ProductFeignClient productFeignClient(){ return createClient(ProductFeignClient.class, "products/");}
 
-    @Bean
-    public ZaposleniFeignClient zaposleniFeignClient(){ return createClient(ZaposleniFeignClient.class, "zaposleni/"); }
+    //@Bean
+    //public PoslovniProstorFeignClient poslovniProstorFeignClient(){ return createClient(PoslovniProstorFeignClient.class,"prostor/");}
 
-    @Bean
-    public VlasnikFeignClient vlasnikFeignClient(){ return createClient(VlasnikFeignClient.class,"vlasnik/");}
+    //@Bean
+    //public ProjektiFeignClient projektiFeignClient(){ return createClient(ProjektiFeignClient.class,"projekat/");}
 
-    @Bean
-    public KancelarijaFeignClient kancelarijaFeignClient(){ return createClient(KancelarijaFeignClient.class, "kancelarija/");}
-
-    @Bean
-    public PoslovniProstorFeignClient poslovniProstorFeignClient(){ return createClient(PoslovniProstorFeignClient.class,"prostor/");}
-
-    @Bean
-    public ProjektiFeignClient projektiFeignClient(){ return createClient(ProjektiFeignClient.class,"projekat/");}
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+    //@Override
+    //public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+       // this.applicationContext = applicationContext;
+    //}
 
     private <T> T createClient(Class<T> type, String uri) {
         return Feign.builder()

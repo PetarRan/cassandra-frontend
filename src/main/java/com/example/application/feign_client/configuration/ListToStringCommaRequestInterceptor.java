@@ -1,4 +1,4 @@
-package com.kaktus.application.feign_client.configuration;
+package com.example.application.feign_client.configuration;
 
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
