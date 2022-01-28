@@ -125,11 +125,6 @@ public class SellView extends Div {
         countrySelect.addClassNames("mb-s");
         continentSelect.setItems(continents);
 
-        TextField phone = new TextField("Your Phone");
-        phone.setRequiredIndicatorVisible(true);
-        phone.setPattern("[\\d \\-\\+]+");
-        phone.addClassNames("mb-s");
-
         EmailField email = new EmailField("Your Email:");
         email.setRequiredIndicatorVisible(true);
         email.addClassNames("mb-s");
@@ -137,7 +132,7 @@ public class SellView extends Div {
         Checkbox rememberDetails = new Checkbox("Remember email for next time");
         rememberDetails.addClassNames("mt-s");
 
-        personalDetails.add(header, name, description, url, countrySelect, continentSelect, email, phone, rememberDetails);
+        personalDetails.add(header, name, description, url, countrySelect, continentSelect, email, rememberDetails);
         return personalDetails;
     }
 
