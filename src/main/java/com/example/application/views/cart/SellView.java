@@ -1,7 +1,10 @@
 package com.example.application.views.cart;
 
+import com.example.application.data.model.Product;
+import com.example.application.feign_client.ProductFeignClient;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -9,13 +12,17 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -66,7 +73,18 @@ public class SellView extends Div {
         continents.addAll(Arrays.asList("Europe", "Australia", "Asia", "Africa", "South America", "North America"));
     }
 
-    public SellView() {
+    ProductFeignClient productFeignClient;
+
+    TextField city = new TextField("Place/City of Origin:");
+    ComboBox<String> continentSelect = new ComboBox<>("Continent of Origin");
+    ComboBox<String> countrySelect = new ComboBox<>("Country of Origin");
+    NumberField price = new NumberField("Price:");
+    TextField url = new TextField("Image URL:");
+    TextArea description = new TextArea("Description:");
+    H3 header = new H3("Details");
+
+    public SellView(ProductFeignClient productFeignClient) {
+        this.productFeignClient = productFeignClient;
         addClassNames("cart-view", "flex", "flex-col", "h-full");
 
         Main content = new Main();
@@ -98,41 +116,29 @@ public class SellView extends Div {
         Section personalDetails = new Section();
         personalDetails.addClassNames("flex", "flex-col", "mb-xl", "mt-m");
 
-        H3 header = new H3("Details");
         header.addClassNames("mb-m", "mt-s", "text-2xl");
 
-        TextField name = new TextField("Souvenir name:");
-        name.setRequiredIndicatorVisible(true);
-        name.setPattern("[\\p{L} \\-]+");
-        name.addClassNames("mb-s");
-
-        TextField description = new TextField("Description:");
         description.setRequiredIndicatorVisible(true);
-        description.setPattern("[\\p{L} \\-]+");
         description.addClassNames("mb-s");
 
-        TextField url = new TextField("Image URL:");
         url.setRequiredIndicatorVisible(true);
         url.addClassNames("mb-s");
 
-        ComboBox<String> countrySelect = new ComboBox<>("Country of Origin");
+        price.setRequiredIndicatorVisible(true);
+        price.addClassNames("mb-s");
+
         countrySelect.setRequiredIndicatorVisible(true);
         countrySelect.addClassNames("mb-s");
         countrySelect.setItems(countries);
 
-        ComboBox<String> continentSelect = new ComboBox<>("Continent of Origin");
-        countrySelect.setRequiredIndicatorVisible(true);
-        countrySelect.addClassNames("mb-s");
+        continentSelect.setRequiredIndicatorVisible(true);
+        continentSelect.addClassNames("mb-s");
         continentSelect.setItems(continents);
 
-        EmailField email = new EmailField("Your Email:");
-        email.setRequiredIndicatorVisible(true);
-        email.addClassNames("mb-s");
+        city.setRequiredIndicatorVisible(true);
+        city.addClassNames("mb-s");
 
-        Checkbox rememberDetails = new Checkbox("Remember email for next time");
-        rememberDetails.addClassNames("mt-s");
-
-        personalDetails.add(header, name, description, url, countrySelect, continentSelect, email, rememberDetails);
+        personalDetails.add(header, description, url, countrySelect, continentSelect, city, price);
         return personalDetails;
     }
 
@@ -143,10 +149,42 @@ public class SellView extends Div {
         Button cancel = new Button("Cancel");
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
-        Button pay = new Button("Add Souvenir", new Icon(VaadinIcon.PLUS));
-        pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        Button addButton = new Button("Add Souvenir", new Icon(VaadinIcon.PLUS));
+        addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        addButton.addClickListener(click -> {
+            Product product = new Product();
 
-        footer.add(cancel, pay);
+            if(!description.isEmpty()){
+                product.setDescription(description.getValue());
+            }
+            if(!url.isEmpty()){
+                product.setImageUrl(url.getValue());
+            }
+            if(!price.isEmpty()){
+                product.setPrice(BigDecimal.valueOf(price.getValue()));
+            }
+            if(!countrySelect.isEmpty()){
+                product.setCountry(countrySelect.getValue());
+            }
+            if(!continentSelect.isEmpty()){
+                product.setContinent(continentSelect.getValue());
+            }
+            if(!city.isEmpty()){
+                product.setCity(city.getValue());
+            }
+
+            Notification notification = new Notification("Product added successfully");
+            notification.setPosition(Notification.Position.TOP_CENTER);
+            notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+            notification.setDuration(5000);
+            notification.open();
+
+            productFeignClient.addProduct(product);
+
+            UI.getCurrent().navigate("Browse");
+        });
+
+        footer.add(cancel, addButton);
         return footer;
     }
 

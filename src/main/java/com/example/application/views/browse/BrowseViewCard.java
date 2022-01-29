@@ -29,13 +29,13 @@ public class BrowseViewCard extends LitTemplate {
     @Id
     private Button badge;
 
-    public BrowseViewCard(String text, String url) {
+    public BrowseViewCard(String text, String url, String description, String price, String country, String city,
+                          String continent) {
         this.image.setSrc(url);
         this.image.setAlt(text);
-        this.header.setText("Title");
-        this.subtitle.setText("Card subtitle");
-        this.text.setText(
-                "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut.");
+        this.header.setText(price);
+        this.subtitle.setText(country + " " + city + " - " + continent);
+        this.text.setText(description);
         this.badge.setIcon(VaadinIcon.CART.create());
         this.badge.setText(" Add to Cart");
     }

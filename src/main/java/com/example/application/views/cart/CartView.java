@@ -97,7 +97,6 @@ public class CartView extends Div {
         checkoutForm.add(header, note);
 
         checkoutForm.add(createPersonalDetailsSection());
-        checkoutForm.add(createShippingAddressSection());
         checkoutForm.add(new Hr());
         checkoutForm.add(createFooter());
 
@@ -108,7 +107,7 @@ public class CartView extends Div {
         Section personalDetails = new Section();
         personalDetails.addClassNames("flex", "flex-col", "mb-xl", "mt-m");
 
-        Paragraph stepOne = new Paragraph("Checkout 1/2");
+        Paragraph stepOne = new Paragraph("Checkout");
         stepOne.addClassNames("m-0", "text-s", "text-secondary");
 
         H3 header = new H3("Personal details");
@@ -119,74 +118,15 @@ public class CartView extends Div {
         name.setPattern("[\\p{L} \\-]+");
         name.addClassNames("mb-s");
 
-        EmailField email = new EmailField("Email address");
-        email.setRequiredIndicatorVisible(true);
-        email.addClassNames("mb-s");
+        TextField transactionId = new TextField("TransactionId");
+        transactionId.setPattern("[\\p{L} \\-]+");
+        transactionId.addClassNames("mb-s");
 
-        TextField phone = new TextField("Phone number");
-        phone.setRequiredIndicatorVisible(true);
-        phone.setPattern("[\\d \\-\\+]+");
-        phone.addClassNames("mb-s");
 
-        Checkbox rememberDetails = new Checkbox("Remember personal details for next time");
-        rememberDetails.addClassNames("mt-s");
-
-        personalDetails.add(stepOne, header, name, email, phone, rememberDetails);
+        personalDetails.add(stepOne, header, name, transactionId);
         return personalDetails;
     }
 
-    private Section createShippingAddressSection() {
-        Section shippingDetails = new Section();
-        shippingDetails.addClassNames("flex", "flex-col", "mb-xl", "mt-m");
-
-        Paragraph stepTwo = new Paragraph("Checkout 2/2");
-        stepTwo.addClassNames("m-0", "text-s", "text-secondary");
-
-        H3 header = new H3("Shipping address");
-        header.addClassNames("mb-m", "mt-s", "text-2xl");
-
-        ComboBox countrySelect = new ComboBox("Country");
-        countrySelect.setRequiredIndicatorVisible(true);
-        countrySelect.addClassNames("mb-s");
-
-        TextArea address = new TextArea("Street address");
-        address.setMaxLength(200);
-        address.setRequiredIndicatorVisible(true);
-        address.addClassNames("mb-s");
-
-        Div subSection = new Div();
-        subSection.addClassNames("flex", "flex-wrap", "gap-m");
-
-        TextField postalCode = new TextField("Postal Code");
-        postalCode.setRequiredIndicatorVisible(true);
-        postalCode.setPattern("[\\d \\p{L}]*");
-        postalCode.addClassNames("mb-s");
-
-        TextField city = new TextField("City");
-        city.setRequiredIndicatorVisible(true);
-        city.addClassNames("flex-grow", "mb-s");
-
-        subSection.add(postalCode, city);
-
-        ComboBox stateSelect = new ComboBox("State");
-        stateSelect.setRequiredIndicatorVisible(true);
-
-        stateSelect.setItems(states);
-        stateSelect.setVisible(false);
-        countrySelect.setItems(countries);
-        countrySelect.addValueChangeListener(e -> {
-            stateSelect.setVisible(countrySelect.getValue().equals("United States"));
-        });
-
-        Checkbox sameAddress = new Checkbox("Billing address is the same as shipping address");
-        sameAddress.addClassNames("mt-s");
-
-        Checkbox rememberAddress = new Checkbox("Remember address for next time");
-
-        shippingDetails.add(stepTwo, header, countrySelect, address, subSection, stateSelect, sameAddress,
-                rememberAddress);
-        return shippingDetails;
-    }
 
     private Footer createFooter() {
         Footer footer = new Footer();

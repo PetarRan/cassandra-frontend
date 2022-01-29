@@ -23,10 +23,12 @@ export class BrowseView extends LitElement {
             <h2 class="mb-0 mt-xl text-3xl">Welcome!</h2>
             <p class="mb-xl mt-0 text-secondary">Browse souvenirs from all around the world.</p>
           </vaadin-vertical-layout>
-          <vaadin-select label="Sort by" id="sortBy"></vaadin-select>
-          <vaadin-text-field label="Search" id="search"></vaadin-select>
+          <vaadin-select label="Continent" id="searchPrimary"></vaadin-select>
+          <vaadin-select label="Country" id="searchSecondary"></vaadin-select>
+          <vaadin-text-field label="City" id="searchTernary"></vaadin-text-field>
+          <vaadin-button id="searchButton"></vaadin-button>
         </vaadin-horizontal-layout>
-        <ol class="gap-m grid list-none m-0 p-0">
+        <ol class="gap-m grid list-none m-0 p-0" id="itemList">
           <slot></slot>
         </ol>
       </main>
