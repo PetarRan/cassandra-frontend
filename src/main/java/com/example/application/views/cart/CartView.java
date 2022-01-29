@@ -118,12 +118,7 @@ public class CartView extends Div {
         name.setPattern("[\\p{L} \\-]+");
         name.addClassNames("mb-s");
 
-        TextField transactionId = new TextField("TransactionId");
-        transactionId.setPattern("[\\p{L} \\-]+");
-        transactionId.addClassNames("mb-s");
-
-
-        personalDetails.add(stepOne, header, name, transactionId);
+        personalDetails.add(stepOne, header, name);
         return personalDetails;
     }
 

@@ -126,6 +126,7 @@ public class SellView extends Div {
 
         price.setRequiredIndicatorVisible(true);
         price.addClassNames("mb-s");
+        price.setHelperComponent(new Label("*In Euros"));
 
         countrySelect.setRequiredIndicatorVisible(true);
         countrySelect.addClassNames("mb-s");
@@ -148,6 +149,9 @@ public class SellView extends Div {
 
         Button cancel = new Button("Cancel");
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancel.addClickListener(click -> {
+           UI.getCurrent().navigate("Browse");
+        });
 
         Button addButton = new Button("Add Souvenir", new Icon(VaadinIcon.PLUS));
         addButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);

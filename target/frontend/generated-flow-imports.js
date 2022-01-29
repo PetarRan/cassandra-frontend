@@ -92,3 +92,5 @@ import '@vaadin/flow-frontend/ironListConnector.js';
 import '@vaadin/flow-frontend/selectConnector.js';
 import 'Frontend/views/browse/browse-view-card.ts';
 import 'Frontend/views/browse/browse-view.ts';
+import 'Frontend/views/history/history-view-card.ts';
+import 'Frontend/views/history/history-view.ts';

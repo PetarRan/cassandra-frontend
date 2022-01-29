@@ -1,40 +1,34 @@
 package com.example.application.views.browse;
 
-import com.example.application.data.model.Product;
 import com.example.application.feign_client.ProductFeignClient;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JsModule;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.html.OrderedList;
-import com.vaadin.flow.component.html.Section;
+import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.template.Id;
-import com.vaadin.flow.component.textfield.Autocomplete;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.router.RouteAlias;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
-@PageTitle("Browse")
-@Route(value = "Browse", layout = MainLayout.class)
-@Tag("browse-view")
-@JsModule("./views/browse/browse-view.ts")
-public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
+@PageTitle("My Listings")
+@Route(value = "history", layout = MainLayout.class)
+@Tag("history-view")
+@JsModule("./views/history/history-view.ts")
+public class HistoryView extends LitTemplate implements HasComponents, HasStyle {
 
     private static final Set<String> countries = new LinkedHashSet<>();
-    private static final Set<String> continents = new LinkedHashSet<>();
+    private static final Set<String> continents= new LinkedHashSet<>();
 
     static {
         countries.addAll(Arrays.asList("Afghanistan", "Albania", "Algeria", "American Samoa", "Andorra", "Angola",
@@ -75,20 +69,20 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
         continents.addAll(Arrays.asList("Europe", "Australia", "Asia", "Africa", "South America", "North America"));
     }
 
-    @Id("searchPrimary")
+    @Id("searchPrimary1")
     private Select<String> searchPrimary;
-    @Id("searchSecondary")
+    @Id("searchSecondary1")
     private Select<String> searchSecondary;
-    @Id("searchTernary")
+    @Id("searchTernary1")
     private TextField searchTernary;
-    @Id("searchButton")
+    @Id("searchButton1")
     private Button search;
-    @Id("itemList")
+    @Id("itemList1")
     private OrderedList content;
 
     private ProductFeignClient productFeignClient;
 
-    public BrowseView(ProductFeignClient productFeignClient) {
+    public HistoryView(ProductFeignClient productFeignClient) {
         this.productFeignClient = productFeignClient;
 
         searchPrimary.setItems(continents);
@@ -98,12 +92,11 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
         setupSearch();
 
         productFeignClient.findAllProducts().forEach(product -> {
-            add(new BrowseViewCard(product.getDescription(),
+            add(new HistoryViewCard(product.getDescription(),
                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                     product.getCity(), product.getContinent()));
         });
     }
-
 
     private void setupSearch() {
         searchSecondary.setEnabled(false);
@@ -130,7 +123,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                         content.removeAll();
                         productFeignClient.findByCity(searchPrimary.getValue(),
                                 searchSecondary.getValue(), searchTernary.getValue()).forEach(product -> {
-                            content.add(new BrowseViewCard(product.getDescription(),
+                            content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                                     product.getCity(), product.getContinent()));
                         });
@@ -139,7 +132,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                     else{
                         content.removeAll();
                         productFeignClient.findByCountry(searchPrimary.getValue(), searchSecondary.getValue()).forEach(product -> {
-                            content.add(new BrowseViewCard(product.getDescription(),
+                            content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                                     product.getCity(), product.getContinent()));
                         });
@@ -149,7 +142,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                 else{
                     content.removeAll();
                     productFeignClient.findByContinent(searchPrimary.getValue()).forEach(product -> {
-                        content.add(new BrowseViewCard(product.getDescription(),
+                        content.add(new HistoryViewCard(product.getDescription(),
                                 product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                                 product.getCity(), product.getContinent()));
                     });

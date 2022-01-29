@@ -1,6 +1,7 @@
 package com.example.application.feign_client.configuration;
 
-import com.example.application.feign_client.MarketHistoryFeignClient;
+import com.example.application.feign_client.CartFeignClient;
+import com.example.application.feign_client.ListingsFeignClient;
 import com.example.application.feign_client.ProductFeignClient;
 import feign.Client;
 import feign.Feign;
@@ -32,7 +33,9 @@ public class FeignClientConfiguration implements ApplicationContextAware {
     @Bean
     public ProductFeignClient productFeignClient(){ return createClient(ProductFeignClient.class, "product/");}
 
-    public MarketHistoryFeignClient marketHistoryFeignClient(){ return createClient(MarketHistoryFeignClient.class, "user/");}
+    public ListingsFeignClient listingsFeignClient(){ return createClient(ListingsFeignClient.class, "listings-api/");}
+
+    public CartFeignClient cartFeignClient(){ return createClient(CartFeignClient.class, "cart-api/");}
 
 
     private <T> T createClient(Class<T> type, String uri) {
