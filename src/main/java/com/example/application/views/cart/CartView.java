@@ -1,11 +1,16 @@
 package com.example.application.views.cart;
 
+import com.example.application.data.model.User;
+import com.example.application.feign_client.UserFeignClient;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -74,7 +79,15 @@ public class CartView extends Div {
         continents.addAll(Arrays.asList("Europe", "Australia", "Asia", "Africa", "South America", "North America"));
     }
 
-    public CartView() {
+    Dialog popUpDialog;
+    UserFeignClient userFeignClient;
+    TextField name = new TextField("Name");
+    UnorderedList ul = new UnorderedList();
+
+    public CartView(UserFeignClient userFeignClient) {
+
+        this.userFeignClient = userFeignClient;
+
         addClassNames("cart-view", "flex", "flex-col", "h-full");
 
         Main content = new Main();
@@ -87,6 +100,8 @@ public class CartView extends Div {
     }
 
     private Component createCheckoutForm() {
+        popUp();
+
         Section checkoutForm = new Section();
         checkoutForm.addClassNames("flex", "flex-col", "flex-grow");
 
@@ -113,7 +128,6 @@ public class CartView extends Div {
         H3 header = new H3("Personal details");
         header.addClassNames("mb-m", "mt-s", "text-2xl");
 
-        TextField name = new TextField("Name");
         name.setRequiredIndicatorVisible(true);
         name.setPattern("[\\p{L} \\-]+");
         name.addClassNames("mb-s");
@@ -129,9 +143,15 @@ public class CartView extends Div {
 
         Button cancel = new Button("Cancel order");
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        cancel.addClickListener(click -> {
+           UI.getCurrent().navigate("Browse");
+        });
 
         Button pay = new Button("Pay securely", new Icon(VaadinIcon.LOCK));
         pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        pay.addClickListener(click ->{
+           //TODO clear Products(ccc + uuid), clear Cart
+        });
 
         footer.add(cancel, pay);
         return footer;
@@ -148,12 +168,7 @@ public class CartView extends Div {
         edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
         headerSection.add(header, new Icon(VaadinIcon.CART));
 
-        UnorderedList ul = new UnorderedList();
         ul.addClassNames("list-none", "m-0", "p-0", "flex", "flex-col", "gap-m");
-
-        ul.add(createListItem("Vanilla cracker", "With wholemeal flour", "$7.00"));
-        ul.add(createListItem("Vanilla blueberry cake", "With blueberry jam", "$8.00"));
-        ul.add(createListItem("Vanilla pastry", "With wholemeal flour", "$5.00"));
 
         aside.add(headerSection, ul);
         return aside;
@@ -178,5 +193,33 @@ public class CartView extends Div {
 
         item.add(subSection, priceSpan, buttonRemove);
         return item;
+    }
+
+    private void popUp() {
+        popUpDialog = new Dialog();
+        popUpDialog.setWidth("250px");
+        popUpDialog.setHeight("250x");
+        FormLayout formLayout = new FormLayout();
+        TextField username = new TextField();
+        username.setRequired(true);
+        username.setLabel("Choose a Username: ");
+        formLayout.add(username);
+        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
+
+        login.addClickListener(loginClick -> {
+            if(!username.isEmpty()){
+                User user = userFeignClient.findByUsername(username.getValue());
+                name.setValue(username.getValue());
+                popUpDialog.close();
+                //ul.add(createListItem("Vanilla cracker", "With wholemeal flour", "$7.00"));
+            }
+        });
+
+        formLayout.add(username, login);
+        popUpDialog.setCloseOnEsc(false);
+        popUpDialog.setCloseOnOutsideClick(false);
+        popUpDialog.add(formLayout);
+        popUpDialog.open();
+
     }
 }

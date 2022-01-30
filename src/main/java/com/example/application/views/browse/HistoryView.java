@@ -1,16 +1,24 @@
 package com.example.application.views.browse;
 
+import com.example.application.data.model.User;
+import com.example.application.feign_client.ListingsFeignClient;
 import com.example.application.feign_client.ProductFeignClient;
+import com.example.application.feign_client.UserFeignClient;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasStyle;
 import com.vaadin.flow.component.Tag;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.JsModule;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.component.textfield.TextField;
@@ -79,23 +87,25 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
     private Button search;
     @Id("itemList1")
     private OrderedList content;
+    @Id("userText")
+    private H2 userText;
 
-    private ProductFeignClient productFeignClient;
+    Dialog popUpDialog;
 
-    public HistoryView(ProductFeignClient productFeignClient) {
-        this.productFeignClient = productFeignClient;
+    private ListingsFeignClient listingsFeignClient;
+    private UserFeignClient userFeignClient;
+
+    public HistoryView(ListingsFeignClient listingsFeignClient, UserFeignClient userFeignClient) {
+        this.listingsFeignClient = listingsFeignClient;
+        this.userFeignClient = userFeignClient;
+
+        popUp(content);
 
         searchPrimary.setItems(continents);
         searchSecondary.setItems(countries);
 
         addClassNames("browse-view", "flex", "flex-col", "h-full");
         setupSearch();
-
-        productFeignClient.findAllProducts().forEach(product -> {
-            add(new HistoryViewCard(product.getDescription(),
-                    product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                    product.getCity(), product.getContinent()));
-        });
     }
 
     private void setupSearch() {
@@ -121,34 +131,76 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                 if(searchSecondary != null){
                     if(!searchTernary.isEmpty()){
                         content.removeAll();
-                        productFeignClient.findByCity(searchPrimary.getValue(),
+                        listingsFeignClient.findByCity(userText.getText(), searchPrimary.getValue(),
                                 searchSecondary.getValue(), searchTernary.getValue()).forEach(product -> {
                             content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                    product.getCity(), product.getContinent()));
+                                    product.getCity(), product.getContinent(), listingsFeignClient, product.getId()
+                                    , userText.getText()));
                         });
                         //findByCity
                     }
                     else{
                         content.removeAll();
-                        productFeignClient.findByCountry(searchPrimary.getValue(), searchSecondary.getValue()).forEach(product -> {
+                        listingsFeignClient.findByCountry(userText.getText(), searchPrimary.getValue(), searchSecondary.getValue()).forEach(product -> {
                             content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                    product.getCity(), product.getContinent()));
+                                    product.getCity(), product.getContinent(), listingsFeignClient, product.getId()
+                                    , userText.getText()));
                         });
                         //findByCountry
                     }
                 }
                 else{
                     content.removeAll();
-                    productFeignClient.findByContinent(searchPrimary.getValue()).forEach(product -> {
+                    listingsFeignClient.findByContinent(userText.getText(), searchPrimary.getValue()).forEach(product -> {
                         content.add(new HistoryViewCard(product.getDescription(),
                                 product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                product.getCity(), product.getContinent()));
+                                product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText()));
                     });
                     //findByContinent
                 }
             }
         });
+    }
+    private void popUp(OrderedList content) {
+        popUpDialog = new Dialog();
+        popUpDialog.setWidth("250px");
+        popUpDialog.setHeight("250x");
+        FormLayout formLayout = new FormLayout();
+        TextField username = new TextField();
+        username.setRequired(true);
+        username.setLabel("Choose a Username: ");
+        formLayout.add(username);
+        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
+
+        login.addClickListener(loginClick -> {
+            if(!username.isEmpty()){
+                User user = userFeignClient.findByUsername(username.getValue());
+                popUpDialog.close();
+                userText.setText(username.getValue());
+
+                listingsFeignClient.findMyListings(userText.getText()).forEach(product -> {
+                    content.add(new HistoryViewCard(product.getDescription(),
+                            product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
+                            product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText()));
+                });
+            }
+        });
+
+        formLayout.add(username, login);
+        popUpDialog.setCloseOnEsc(false);
+        popUpDialog.setCloseOnOutsideClick(false);
+        popUpDialog.add(formLayout);
+        popUpDialog.open();
+
+    }
+
+    private void notificationPop(String s) {
+        Notification notification = new Notification(s);
+        notification.setDuration(5000);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.open();
     }
 }

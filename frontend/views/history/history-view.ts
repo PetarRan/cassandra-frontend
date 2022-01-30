@@ -20,7 +20,7 @@ export class HistoryView extends LitElement {
       <main class="max-w-screen-lg mx-auto pb-l px-l">
         <vaadin-horizontal-layout class="items-center justify-between">
           <vaadin-vertical-layout>
-            <h2 class="mb-0 mt-xl text-3xl">Welcome!</h2>
+            <h2 class="mb-0 mt-xl text-3xl" id="userText"></h2>
             <p class="mb-xl mt-0 text-secondary">Manage your Listings</p>
           </vaadin-vertical-layout>
           <vaadin-select label="Continent" id="searchPrimary1"></vaadin-select>

@@ -72,7 +72,9 @@ public class MainLayout extends AppLayout {
     }
 
     public MainLayout() {
+
         addToNavbar(createHeaderContent());
+        //TODO username?
     }
 
     private Component createHeaderContent() {

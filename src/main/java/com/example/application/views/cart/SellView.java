@@ -1,7 +1,9 @@
 package com.example.application.views.cart;
 
 import com.example.application.data.model.Product;
+import com.example.application.data.model.User;
 import com.example.application.feign_client.ProductFeignClient;
+import com.example.application.feign_client.UserFeignClient;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
@@ -9,6 +11,8 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -74,8 +78,12 @@ public class SellView extends Div {
     }
 
     ProductFeignClient productFeignClient;
+    UserFeignClient userFeignClient;
+
+    Dialog popUpDialog;
 
     TextField city = new TextField("Place/City of Origin:");
+    TextField usernameField = new TextField("Your username:");
     ComboBox<String> continentSelect = new ComboBox<>("Continent of Origin");
     ComboBox<String> countrySelect = new ComboBox<>("Country of Origin");
     NumberField price = new NumberField("Price:");
@@ -83,8 +91,12 @@ public class SellView extends Div {
     TextArea description = new TextArea("Description:");
     H3 header = new H3("Details");
 
-    public SellView(ProductFeignClient productFeignClient) {
+    public SellView(ProductFeignClient productFeignClient, UserFeignClient userFeignClient) {
         this.productFeignClient = productFeignClient;
+        this.userFeignClient = userFeignClient;
+
+        popUp();
+
         addClassNames("cart-view", "flex", "flex-col", "h-full");
 
         Main content = new Main();
@@ -121,6 +133,9 @@ public class SellView extends Div {
         description.setRequiredIndicatorVisible(true);
         description.addClassNames("mb-s");
 
+        usernameField.setRequiredIndicatorVisible(true);
+        usernameField.addClassNames("mb-s");
+
         url.setRequiredIndicatorVisible(true);
         url.addClassNames("mb-s");
 
@@ -139,7 +154,7 @@ public class SellView extends Div {
         city.setRequiredIndicatorVisible(true);
         city.addClassNames("mb-s");
 
-        personalDetails.add(header, description, url, countrySelect, continentSelect, city, price);
+        personalDetails.add(header, usernameField, description, url, countrySelect, continentSelect, city, price);
         return personalDetails;
     }
 
@@ -183,7 +198,7 @@ public class SellView extends Div {
             notification.setDuration(5000);
             notification.open();
 
-            productFeignClient.addProduct(product);
+            productFeignClient.addProduct(product, usernameField.getValue());
 
             UI.getCurrent().navigate("Browse");
         });
@@ -230,5 +245,33 @@ public class SellView extends Div {
 
         item.add(subSection, priceSpan);
         return item;
+    }
+
+    private void popUp() {
+        popUpDialog = new Dialog();
+        popUpDialog.setWidth("250px");
+        popUpDialog.setHeight("250x");
+        FormLayout formLayout = new FormLayout();
+        TextField username = new TextField();
+        username.setRequired(true);
+        username.setLabel("Choose a Username: ");
+        formLayout.add(username);
+        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
+
+        login.addClickListener(loginClick -> {
+            if(!username.isEmpty()){
+                User user = userFeignClient.findByUsername(username.getValue());
+                popUpDialog.close();
+                usernameField.setValue(username.getValue());
+                //ul.add(createListItem("Vanilla cracker", "With wholemeal flour", "$7.00"));
+            }
+        });
+
+        formLayout.add(username, login);
+        popUpDialog.setCloseOnEsc(false);
+        popUpDialog.setCloseOnOutsideClick(false);
+        popUpDialog.add(formLayout);
+        popUpDialog.open();
+
     }
 }

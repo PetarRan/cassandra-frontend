@@ -3,12 +3,12 @@ package com.example.application.feign_client.configuration;
 import com.example.application.feign_client.CartFeignClient;
 import com.example.application.feign_client.ListingsFeignClient;
 import com.example.application.feign_client.ProductFeignClient;
+import com.example.application.feign_client.UserFeignClient;
 import feign.Client;
 import feign.Feign;
 import feign.codec.Decoder;
 import feign.codec.Encoder;
 import lombok.Data;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -33,9 +33,14 @@ public class FeignClientConfiguration implements ApplicationContextAware {
     @Bean
     public ProductFeignClient productFeignClient(){ return createClient(ProductFeignClient.class, "product/");}
 
+    @Bean
     public ListingsFeignClient listingsFeignClient(){ return createClient(ListingsFeignClient.class, "listings-api/");}
 
+    @Bean
     public CartFeignClient cartFeignClient(){ return createClient(CartFeignClient.class, "cart-api/");}
+
+    @Bean
+    public UserFeignClient userFeignClient(){ return createClient(UserFeignClient.class, "user-api/");}
 
 
     private <T> T createClient(Class<T> type, String uri) {

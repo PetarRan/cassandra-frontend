@@ -1,7 +1,10 @@
 package com.example.application.views.browse;
 
 import com.example.application.data.model.Product;
+import com.example.application.data.model.User;
+import com.example.application.feign_client.CartFeignClient;
 import com.example.application.feign_client.ProductFeignClient;
+import com.example.application.feign_client.UserFeignClient;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.HasComponents;
 import com.vaadin.flow.component.HasStyle;
@@ -14,9 +17,12 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.OrderedList;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.html.Section;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.littemplate.LitTemplate;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.component.textfield.Autocomplete;
@@ -29,6 +35,7 @@ import java.util.*;
 
 @PageTitle("Browse")
 @Route(value = "Browse", layout = MainLayout.class)
+@RouteAlias(value = "", layout = MainLayout.class)
 @Tag("browse-view")
 @JsModule("./views/browse/browse-view.ts")
 public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
@@ -81,15 +88,24 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
     private Select<String> searchSecondary;
     @Id("searchTernary")
     private TextField searchTernary;
+    @Id("user")
+    private Paragraph userCurrent;
     @Id("searchButton")
     private Button search;
     @Id("itemList")
     private OrderedList content;
 
     private ProductFeignClient productFeignClient;
+    Dialog popUpDialog;
+    UserFeignClient userFeignClient;
+    CartFeignClient cartFeignClient;
 
-    public BrowseView(ProductFeignClient productFeignClient) {
+    public BrowseView(ProductFeignClient productFeignClient, UserFeignClient userFeignClient, CartFeignClient cartFeignClient) {
         this.productFeignClient = productFeignClient;
+        this.userFeignClient = userFeignClient;
+        this.cartFeignClient = cartFeignClient;
+
+        popUp();
 
         searchPrimary.setItems(continents);
         searchSecondary.setItems(countries);
@@ -100,7 +116,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
         productFeignClient.findAllProducts().forEach(product -> {
             add(new BrowseViewCard(product.getDescription(),
                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                    product.getCity(), product.getContinent()));
+                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
         });
     }
 
@@ -132,7 +148,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                                 searchSecondary.getValue(), searchTernary.getValue()).forEach(product -> {
                             content.add(new BrowseViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                    product.getCity(), product.getContinent()));
+                                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
                         });
                         //findByCity
                     }
@@ -141,7 +157,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                         productFeignClient.findByCountry(searchPrimary.getValue(), searchSecondary.getValue()).forEach(product -> {
                             content.add(new BrowseViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                    product.getCity(), product.getContinent()));
+                                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
                         });
                         //findByCountry
                     }
@@ -151,11 +167,56 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                     productFeignClient.findByContinent(searchPrimary.getValue()).forEach(product -> {
                         content.add(new BrowseViewCard(product.getDescription(),
                                 product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                product.getCity(), product.getContinent()));
+                                product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
                     });
                     //findByContinent
                 }
             }
         });
+    }
+
+    private void popUp() {
+        popUpDialog = new Dialog();
+        popUpDialog.setWidth("250px");
+        popUpDialog.setHeight("250x");
+        FormLayout formLayout = new FormLayout();
+        TextField username = new TextField();
+        username.setRequired(true);
+        username.setLabel("Choose a Username: ");
+        formLayout.add(username);
+        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
+
+        login.addClickListener(loginClick -> {
+            if(!username.isEmpty()){
+                if(userFeignClient.findByUsername(username.getValue()) != null){
+                    notificationPop("Welcome back " + username.getValue());
+
+                } else {
+                    User user = new User();
+                    user.setUserId(username.getValue());
+                    userFeignClient.addUser(user);
+
+                    notificationPop("User Created: " + username.getValue() + ". Welcome!");
+                }
+                userCurrent.setText(username.getValue());
+                UI.getCurrent().navigate("Browse");
+                popUpDialog.close();
+            }
+        });
+
+        formLayout.add(username, login);
+        popUpDialog.setCloseOnEsc(false);
+        popUpDialog.setCloseOnOutsideClick(false);
+        popUpDialog.add(formLayout);
+        popUpDialog.open();
+
+    }
+
+    private void notificationPop(String s) {
+        Notification notification = new Notification(s);
+        notification.setDuration(5000);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.open();
     }
 }

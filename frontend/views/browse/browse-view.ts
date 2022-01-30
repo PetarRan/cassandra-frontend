@@ -21,6 +21,7 @@ export class BrowseView extends LitElement {
         <vaadin-horizontal-layout class="items-center justify-between">
           <vaadin-vertical-layout>
             <h2 class="mb-0 mt-xl text-3xl">Welcome!</h2>
+            <p class="mt-0 text-xl text-secondary" id="user"></p>
             <p class="mb-xl mt-0 text-secondary">Browse souvenirs from all around the world.</p>
           </vaadin-vertical-layout>
           <vaadin-select label="Continent" id="searchPrimary"></vaadin-select>
