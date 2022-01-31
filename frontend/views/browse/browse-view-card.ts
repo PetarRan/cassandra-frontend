@@ -14,6 +14,7 @@ export class StubViewCard extends LitElement {
 
   render() {
     return html`<li class="bg-contrast-5 flex flex-col items-start p-m rounded-l">
+    <p class="my-m text-secondary" id="codePrimary"></p>
       <div
         class="bg-contrast flex items-center justify-center mb-m overflow-hidden rounded-m w-full"
         style="height: 160px;">
@@ -24,7 +25,8 @@ export class StubViewCard extends LitElement {
       <span class="text-s text-secondary" id="country"></span>
       <span class="text-s text-secondary" id="city"></span>
       <p class="my-m" id="text"></p>
-      <vaadin-button id="badge"></<vaadin-button>
+      <vaadin-button id="badge3"></<vaadin-button>
+
     </li> `;
   }
 }

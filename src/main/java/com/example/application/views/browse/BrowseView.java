@@ -67,7 +67,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                 "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue",
                 "Norfolk Island", "North Korea", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau",
                 "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal",
-                "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Kitts and Nevis",
+                "Puerto Rico", "Qatar", "Reunion", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis",
                 "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe",
                 "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia",
                 "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands",
@@ -116,7 +116,7 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
         productFeignClient.findAllProducts().forEach(product -> {
             add(new BrowseViewCard(product.getDescription(),
                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
+                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText(), product.getId().toString(), productFeignClient));
         });
     }
 
@@ -140,15 +140,16 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
         search.setIcon(VaadinIcon.ARROW_RIGHT.create());
         search.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_SUCCESS);
         search.addClickListener(click -> {
-            if(!searchPrimary.isEmpty()){
-                if(searchSecondary != null){
+            if(searchPrimary != null){
+                if(searchSecondary.getValue() != null){
                     if(!searchTernary.isEmpty()){
                         content.removeAll();
                         productFeignClient.findByCity(searchPrimary.getValue(),
                                 searchSecondary.getValue(), searchTernary.getValue()).forEach(product -> {
                             content.add(new BrowseViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
+                                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText(), product.getId().toString(),
+                                    productFeignClient));
                         });
                         //findByCity
                     }
@@ -157,7 +158,8 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                         productFeignClient.findByCountry(searchPrimary.getValue(), searchSecondary.getValue()).forEach(product -> {
                             content.add(new BrowseViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
+                                    product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText(), product.getId().toString(),
+                                    productFeignClient));
                         });
                         //findByCountry
                     }
@@ -167,7 +169,8 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
                     productFeignClient.findByContinent(searchPrimary.getValue()).forEach(product -> {
                         content.add(new BrowseViewCard(product.getDescription(),
                                 product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText()));
+                                product.getCity(), product.getContinent(), cartFeignClient, userCurrent.getText(), product.getId().toString(),
+                                productFeignClient));
                     });
                     //findByContinent
                 }

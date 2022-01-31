@@ -20,10 +20,13 @@ export class StubViewCard extends LitElement {
         <img id="image" class="w-full" />
       </div>
       <span class="text-xl font-semibold" id="header"></span>
-      <span class="text-s text-secondary" id="subtitle"></span>
+      <span class="text-s text-secondary" id="continent1"></span>
+      <span class="text-s text-secondary" id="country1"></span>
+      <span class="text-s text-secondary" id="city1"></span>
       <p class="my-m" id="text"></p>
       <vaadin-button id="badge"></vaadin-button>
       <vaadin-button id="badge2"></vaadin-button>
+      <p class="my-m text-secondary" id="code"></p>
     </li> `;
   }
 }

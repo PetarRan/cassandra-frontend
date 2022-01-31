@@ -30,7 +30,9 @@ public interface ListingsFeignClient extends CommonFeignClient<MyListings>{
                                       @Param("continent") String continent, @Param("country") String country,
                                    @Param("city") String city);
 
-    @RequestLine("DELETE deleteListing")
-    void deleteListing(@Valid @RequestBody(required = true) MyListings myListing);
+    @RequestLine("GET getByCode/{userid}/{continent}/{country}/{city}/{id}")
+    MyListings findByCode(@Param("userid")String userId,
+                                      @Param("continent") String continent, @Param("country") String country,
+                                      @Param("city") String city, @Param("id")String id);
 
 }

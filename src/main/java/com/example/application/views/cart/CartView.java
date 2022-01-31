@@ -1,6 +1,8 @@
 package com.example.application.views.cart;
 
 import com.example.application.data.model.User;
+import com.example.application.feign_client.CartFeignClient;
+import com.example.application.feign_client.ProductFeignClient;
 import com.example.application.feign_client.UserFeignClient;
 import com.example.application.views.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -84,9 +86,15 @@ public class CartView extends Div {
     TextField name = new TextField("Name");
     UnorderedList ul = new UnorderedList();
 
-    public CartView(UserFeignClient userFeignClient) {
+    CartFeignClient cartFeignClient;
+    ProductFeignClient productFeignClient;
+
+    public CartView(UserFeignClient userFeignClient, CartFeignClient cartFeignClient,
+                    ProductFeignClient productFeignClient) {
 
         this.userFeignClient = userFeignClient;
+        this.cartFeignClient = cartFeignClient;
+        this.productFeignClient = productFeignClient;
 
         addClassNames("cart-view", "flex", "flex-col", "h-full");
 
@@ -164,9 +172,15 @@ public class CartView extends Div {
         headerSection.addClassNames("flex", "items-center", "justify-between", "mb-m");
         H3 header = new H3("Cart");
         header.addClassNames("m-0");
-        Button edit = new Button("Edit");
-        edit.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
-        headerSection.add(header, new Icon(VaadinIcon.CART));
+
+        Button buttonRemove = new Button("Clear Cart", VaadinIcon.TRASH.create());
+        buttonRemove.addThemeVariants(ButtonVariant.LUMO_ERROR);
+        buttonRemove.addClickListener(click ->{
+            productFeignClient.deleteFromCart(name.getValue());
+            UI.getCurrent().getPage().reload();
+        });
+
+        headerSection.add(header, new Icon(VaadinIcon.CART), buttonRemove);
 
         ul.addClassNames("list-none", "m-0", "p-0", "flex", "flex-col", "gap-m");
 
@@ -188,10 +202,7 @@ public class CartView extends Div {
 
         Span priceSpan = new Span(price);
 
-        Button buttonRemove = new Button(VaadinIcon.TRASH.create());
-        buttonRemove.addThemeVariants(ButtonVariant.LUMO_ERROR);
-
-        item.add(subSection, priceSpan, buttonRemove);
+        item.add(subSection, priceSpan);
         return item;
     }
 
@@ -211,7 +222,10 @@ public class CartView extends Div {
                 User user = userFeignClient.findByUsername(username.getValue());
                 name.setValue(username.getValue());
                 popUpDialog.close();
-                //ul.add(createListItem("Vanilla cracker", "With wholemeal flour", "$7.00"));
+                productFeignClient.getMyCart(username.getValue()).forEach(cartItem -> {
+                    ul.add(createListItem(cartItem.getDescription(), cartItem.getLocation(),
+                            cartItem.getPrice().toString() + "€"));
+                });
             }
         });
 

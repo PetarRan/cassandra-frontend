@@ -1,5 +1,6 @@
 package com.example.application.views.browse;
 
+import com.example.application.data.model.MyListings;
 import com.example.application.data.model.User;
 import com.example.application.feign_client.ListingsFeignClient;
 import com.example.application.feign_client.ProductFeignClient;
@@ -25,9 +26,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 
 @PageTitle("My Listings")
 @Route(value = "history", layout = MainLayout.class)
@@ -62,7 +61,7 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                 "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue",
                 "Norfolk Island", "North Korea", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau",
                 "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal",
-                "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Kitts and Nevis",
+                "Puerto Rico", "Qatar", "Reunion", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis",
                 "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe",
                 "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia",
                 "Solomon Islands", "Somalia", "South Africa", "South Georgia and the South Sandwich Islands",
@@ -94,10 +93,13 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
 
     private ListingsFeignClient listingsFeignClient;
     private UserFeignClient userFeignClient;
+    private ProductFeignClient productFeignClient;
 
-    public HistoryView(ListingsFeignClient listingsFeignClient, UserFeignClient userFeignClient) {
+    public HistoryView(ListingsFeignClient listingsFeignClient, UserFeignClient userFeignClient, ProductFeignClient
+                       productFeignClient) {
         this.listingsFeignClient = listingsFeignClient;
         this.userFeignClient = userFeignClient;
+        this.productFeignClient = productFeignClient;
 
         popUp(content);
 
@@ -136,7 +138,8 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                             content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                                     product.getCity(), product.getContinent(), listingsFeignClient, product.getId()
-                                    , userText.getText()));
+                                    , userText.getText(), productFeignClient,
+                                    product.getId().toString()));
                         });
                         //findByCity
                     }
@@ -146,7 +149,8 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                             content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                                     product.getCity(), product.getContinent(), listingsFeignClient, product.getId()
-                                    , userText.getText()));
+                                    , userText.getText(), productFeignClient,
+                                    product.getId().toString()));
                         });
                         //findByCountry
                     }
@@ -156,7 +160,8 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                     listingsFeignClient.findByContinent(userText.getText(), searchPrimary.getValue()).forEach(product -> {
                         content.add(new HistoryViewCard(product.getDescription(),
                                 product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText()));
+                                product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText(), productFeignClient,
+                                product.getId().toString()));
                     });
                     //findByContinent
                 }
@@ -179,12 +184,18 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                 User user = userFeignClient.findByUsername(username.getValue());
                 popUpDialog.close();
                 userText.setText(username.getValue());
-
-                listingsFeignClient.findMyListings(userText.getText()).forEach(product -> {
-                    content.add(new HistoryViewCard(product.getDescription(),
-                            product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                            product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText()));
-                });
+                Collection<MyListings> myListingsList = new ArrayList<>();
+                myListingsList = listingsFeignClient.findMyListings(userText.getText());
+                if(myListingsList.size()==0){
+                    content.add(new H3("This user has no listings."));
+                } else {
+                    listingsFeignClient.findMyListings(userText.getText()).forEach(product -> {
+                        content.add(new HistoryViewCard("My Listing",
+                                product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
+                                product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText(), productFeignClient,
+                                product.getId().toString()));
+                    });
+                }
             }
         });
 
