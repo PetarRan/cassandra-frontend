@@ -25,6 +25,7 @@ import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -95,8 +96,6 @@ public class SellView extends Div {
         this.productFeignClient = productFeignClient;
         this.userFeignClient = userFeignClient;
 
-        popUp();
-
         addClassNames("cart-view", "flex", "flex-col", "h-full");
 
         Main content = new Main();
@@ -105,6 +104,8 @@ public class SellView extends Div {
 
         content.add(createCheckoutForm());
         add(content);
+        usernameField.setValue(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                .toString());
     }
 
     private Component createCheckoutForm() {
@@ -247,31 +248,4 @@ public class SellView extends Div {
         return item;
     }
 
-    private void popUp() {
-        popUpDialog = new Dialog();
-        popUpDialog.setWidth("250px");
-        popUpDialog.setHeight("250x");
-        FormLayout formLayout = new FormLayout();
-        TextField username = new TextField();
-        username.setRequired(true);
-        username.setLabel("Choose a Username: ");
-        formLayout.add(username);
-        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
-
-        login.addClickListener(loginClick -> {
-            if(!username.isEmpty()){
-                User user = userFeignClient.findByUsername(username.getValue());
-                popUpDialog.close();
-                usernameField.setValue(username.getValue());
-                //ul.add(createListItem("Vanilla cracker", "With wholemeal flour", "$7.00"));
-            }
-        });
-
-        formLayout.add(username, login);
-        popUpDialog.setCloseOnEsc(false);
-        popUpDialog.setCloseOnOutsideClick(false);
-        popUpDialog.add(formLayout);
-        popUpDialog.open();
-
-    }
 }

@@ -1,5 +1,6 @@
 package com.example.application.views.cart;
 
+import com.example.application.data.model.Product;
 import com.example.application.data.model.User;
 import com.example.application.feign_client.CartFeignClient;
 import com.example.application.feign_client.ProductFeignClient;
@@ -16,12 +17,17 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.*;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletService;
+
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -81,7 +87,6 @@ public class CartView extends Div {
         continents.addAll(Arrays.asList("Europe", "Australia", "Asia", "Africa", "South America", "North America"));
     }
 
-    Dialog popUpDialog;
     UserFeignClient userFeignClient;
     TextField name = new TextField("Name");
     UnorderedList ul = new UnorderedList();
@@ -105,10 +110,11 @@ public class CartView extends Div {
         content.add(createCheckoutForm());
         content.add(createAside());
         add(content);
+        name.setValue(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                .toString());
     }
 
     private Component createCheckoutForm() {
-        popUp();
 
         Section checkoutForm = new Section();
         checkoutForm.addClassNames("flex", "flex-col", "flex-grow");
@@ -149,16 +155,23 @@ public class CartView extends Div {
         Footer footer = new Footer();
         footer.addClassNames("flex", "items-center", "justify-between", "my-m");
 
-        Button cancel = new Button("Cancel order");
+        Button cancel = new Button("Go back", VaadinIcon.ARROW_LEFT.create());
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         cancel.addClickListener(click -> {
            UI.getCurrent().navigate("Browse");
         });
 
         Button pay = new Button("Pay securely", new Icon(VaadinIcon.LOCK));
-        pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);
+        pay.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS);;
         pay.addClickListener(click ->{
-           //TODO clear Products(ccc + uuid), clear Cart
+            productFeignClient.getMyCart(name.getValue()).forEach(cart -> {
+                //Product product = productFeignClient.findByCode(continent, country, city, cart.getId().toString());
+                //productFeignClient.deleteProductFromCatalog(product);
+            });
+            productFeignClient.deleteFromCart(name.getValue());
+            popUp("Paid successfully!");
+            UI.getCurrent().navigate("Browse");
+            UI.getCurrent().navigate("cart");
         });
 
         footer.add(cancel, pay);
@@ -177,15 +190,30 @@ public class CartView extends Div {
         buttonRemove.addThemeVariants(ButtonVariant.LUMO_ERROR);
         buttonRemove.addClickListener(click ->{
             productFeignClient.deleteFromCart(name.getValue());
-            UI.getCurrent().getPage().reload();
+            UI.getCurrent().navigate("Browse");
+            UI.getCurrent().navigate("cart");
+            popUp("Removed all the items from the cart.");
         });
 
         headerSection.add(header, new Icon(VaadinIcon.CART), buttonRemove);
 
         ul.addClassNames("list-none", "m-0", "p-0", "flex", "flex-col", "gap-m");
+        productFeignClient.findCartByUserId(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                .toString()).forEach(cartItem -> {
+                    ul.add(createListItem(cartItem.getDescription(), cartItem.getLocation(), cartItem.getPrice().toString()));
+                });
 
         aside.add(headerSection, ul);
         return aside;
+    }
+
+    private void popUp(String s) {
+        Notification notification = new Notification();
+        notification.setDuration(5000);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.setText(s);
+        notification.open();
     }
 
     private ListItem createListItem(String primary, String secondary, String price) {
@@ -200,40 +228,10 @@ public class CartView extends Div {
         secondarySpan.addClassNames("text-s text-secondary");
         subSection.add(secondarySpan);
 
-        Span priceSpan = new Span(price);
+        Span priceSpan = new Span(price + "€");
 
         item.add(subSection, priceSpan);
         return item;
     }
 
-    private void popUp() {
-        popUpDialog = new Dialog();
-        popUpDialog.setWidth("250px");
-        popUpDialog.setHeight("250x");
-        FormLayout formLayout = new FormLayout();
-        TextField username = new TextField();
-        username.setRequired(true);
-        username.setLabel("Choose a Username: ");
-        formLayout.add(username);
-        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
-
-        login.addClickListener(loginClick -> {
-            if(!username.isEmpty()){
-                User user = userFeignClient.findByUsername(username.getValue());
-                name.setValue(username.getValue());
-                popUpDialog.close();
-                productFeignClient.getMyCart(username.getValue()).forEach(cartItem -> {
-                    ul.add(createListItem(cartItem.getDescription(), cartItem.getLocation(),
-                            cartItem.getPrice().toString() + "€"));
-                });
-            }
-        });
-
-        formLayout.add(username, login);
-        popUpDialog.setCloseOnEsc(false);
-        popUpDialog.setCloseOnOutsideClick(false);
-        popUpDialog.add(formLayout);
-        popUpDialog.open();
-
-    }
 }

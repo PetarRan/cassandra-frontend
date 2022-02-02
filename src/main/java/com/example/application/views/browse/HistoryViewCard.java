@@ -119,7 +119,8 @@ public class HistoryViewCard extends LitTemplate {
                 productFeignClient.deleteProduct(product, username);
 
                 popUpDialog.close();
-                UI.getCurrent().getPage().reload();
+                UI.getCurrent().navigate("Browse");
+                UI.getCurrent().navigate("history");
                 Notification notification = new Notification();
                 notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
                 notification.setText("Listing Deleted");
@@ -184,7 +185,9 @@ public class HistoryViewCard extends LitTemplate {
                 product.setDescription(descField.getValue());
 
                 productFeignClient.updateProduct(product, username);
-                UI.getCurrent().getPage().reload();
+                UI.getCurrent().navigate("Browse");
+                UI.getCurrent().navigate("history");
+                popUpDialog.close();
             }
             else{
                 Notification notification = new Notification();

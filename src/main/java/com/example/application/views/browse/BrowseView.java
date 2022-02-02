@@ -30,12 +30,12 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.server.VaadinServletService;
 
 import java.util.*;
 
 @PageTitle("Browse")
 @Route(value = "Browse", layout = MainLayout.class)
-@RouteAlias(value = "", layout = MainLayout.class)
 @Tag("browse-view")
 @JsModule("./views/browse/browse-view.ts")
 public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
@@ -89,14 +89,13 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
     @Id("searchTernary")
     private TextField searchTernary;
     @Id("user")
-    private Paragraph userCurrent;
+    private Paragraph userCurrent; //TODO
     @Id("searchButton")
     private Button search;
     @Id("itemList")
     private OrderedList content;
 
     private ProductFeignClient productFeignClient;
-    Dialog popUpDialog;
     UserFeignClient userFeignClient;
     CartFeignClient cartFeignClient;
 
@@ -105,10 +104,11 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
         this.userFeignClient = userFeignClient;
         this.cartFeignClient = cartFeignClient;
 
-        popUp();
-
         searchPrimary.setItems(continents);
         searchSecondary.setItems(countries);
+
+        userCurrent.setText(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                .toString());
 
         addClassNames("browse-view", "flex", "flex-col", "h-full");
         setupSearch();
@@ -178,48 +178,4 @@ public class BrowseView extends LitTemplate implements HasComponents, HasStyle {
         });
     }
 
-    private void popUp() {
-        popUpDialog = new Dialog();
-        popUpDialog.setWidth("250px");
-        popUpDialog.setHeight("250x");
-        FormLayout formLayout = new FormLayout();
-        TextField username = new TextField();
-        username.setRequired(true);
-        username.setLabel("Choose a Username: ");
-        formLayout.add(username);
-        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
-
-        login.addClickListener(loginClick -> {
-            if(!username.isEmpty()){
-                if(userFeignClient.findByUsername(username.getValue()) != null){
-                    notificationPop("Welcome back " + username.getValue());
-
-                } else {
-                    User user = new User();
-                    user.setUserId(username.getValue());
-                    userFeignClient.addUser(user);
-
-                    notificationPop("User Created: " + username.getValue() + ". Welcome!");
-                }
-                userCurrent.setText(username.getValue());
-                UI.getCurrent().navigate("Browse");
-                popUpDialog.close();
-            }
-        });
-
-        formLayout.add(username, login);
-        popUpDialog.setCloseOnEsc(false);
-        popUpDialog.setCloseOnOutsideClick(false);
-        popUpDialog.add(formLayout);
-        popUpDialog.open();
-
-    }
-
-    private void notificationPop(String s) {
-        Notification notification = new Notification(s);
-        notification.setDuration(5000);
-        notification.setPosition(Notification.Position.TOP_CENTER);
-        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-        notification.open();
-    }
 }

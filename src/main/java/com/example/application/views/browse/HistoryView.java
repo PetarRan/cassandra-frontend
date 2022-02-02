@@ -25,6 +25,7 @@ import com.vaadin.flow.component.template.Id;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.VaadinServletService;
 
 import java.util.*;
 
@@ -89,8 +90,6 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
     @Id("userText")
     private H2 userText;
 
-    Dialog popUpDialog;
-
     private ListingsFeignClient listingsFeignClient;
     private UserFeignClient userFeignClient;
     private ProductFeignClient productFeignClient;
@@ -100,13 +99,24 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
         this.listingsFeignClient = listingsFeignClient;
         this.userFeignClient = userFeignClient;
         this.productFeignClient = productFeignClient;
-
-        popUp(content);
+        userText.setText(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                .toString());
+        content.add();
 
         searchPrimary.setItems(continents);
         searchSecondary.setItems(countries);
 
+
         addClassNames("browse-view", "flex", "flex-col", "h-full");
+        listingsFeignClient.findMyListings(VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                .toString()).forEach(listing -> {
+                    content.add(new HistoryViewCard(listing.getDescription(),
+                            listing.getImageUrl(), listing.getDescription(), listing.getPrice().toString() + "€", listing.getCountry(),
+                            listing.getCity(), listing.getContinent(), listingsFeignClient, listing.getId()
+                            , VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                            .toString(), productFeignClient,
+                            listing.getId().toString()));
+        });
         setupSearch();
     }
 
@@ -138,7 +148,8 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                             content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                                     product.getCity(), product.getContinent(), listingsFeignClient, product.getId()
-                                    , userText.getText(), productFeignClient,
+                                    , VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                                    .toString(), productFeignClient,
                                     product.getId().toString()));
                         });
                         //findByCity
@@ -149,7 +160,8 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                             content.add(new HistoryViewCard(product.getDescription(),
                                     product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
                                     product.getCity(), product.getContinent(), listingsFeignClient, product.getId()
-                                    , userText.getText(), productFeignClient,
+                                    , VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                                    .toString(), productFeignClient,
                                     product.getId().toString()));
                         });
                         //findByCountry
@@ -160,7 +172,9 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
                     listingsFeignClient.findByContinent(userText.getText(), searchPrimary.getValue()).forEach(product -> {
                         content.add(new HistoryViewCard(product.getDescription(),
                                 product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText(), productFeignClient,
+                                product.getCity(), product.getContinent(), listingsFeignClient, product.getId(),
+                                VaadinServletService.getCurrentServletRequest().getSession().getAttribute("username")
+                                        .toString(), productFeignClient,
                                 product.getId().toString()));
                     });
                     //findByContinent
@@ -168,44 +182,7 @@ public class HistoryView extends LitTemplate implements HasComponents, HasStyle 
             }
         });
     }
-    private void popUp(OrderedList content) {
-        popUpDialog = new Dialog();
-        popUpDialog.setWidth("250px");
-        popUpDialog.setHeight("250x");
-        FormLayout formLayout = new FormLayout();
-        TextField username = new TextField();
-        username.setRequired(true);
-        username.setLabel("Choose a Username: ");
-        formLayout.add(username);
-        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
 
-        login.addClickListener(loginClick -> {
-            if(!username.isEmpty()){
-                User user = userFeignClient.findByUsername(username.getValue());
-                popUpDialog.close();
-                userText.setText(username.getValue());
-                Collection<MyListings> myListingsList = new ArrayList<>();
-                myListingsList = listingsFeignClient.findMyListings(userText.getText());
-                if(myListingsList.size()==0){
-                    content.add(new H3("This user has no listings."));
-                } else {
-                    listingsFeignClient.findMyListings(userText.getText()).forEach(product -> {
-                        content.add(new HistoryViewCard("My Listing",
-                                product.getImageUrl(), product.getDescription(), product.getPrice().toString() + "€", product.getCountry(),
-                                product.getCity(), product.getContinent(), listingsFeignClient, product.getId(), userText.getText(), productFeignClient,
-                                product.getId().toString()));
-                    });
-                }
-            }
-        });
-
-        formLayout.add(username, login);
-        popUpDialog.setCloseOnEsc(false);
-        popUpDialog.setCloseOnOutsideClick(false);
-        popUpDialog.add(formLayout);
-        popUpDialog.open();
-
-    }
 
     private void notificationPop(String s) {
         Notification notification = new Notification(s);

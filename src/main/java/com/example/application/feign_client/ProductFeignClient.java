@@ -48,4 +48,9 @@ public interface ProductFeignClient extends CommonFeignClient<Product>{
     @RequestLine("DELETE deleteCart/{userid}")
     void deleteFromCart(@Param("userid")String userid);
 
+    @RequestLine("GET getMyCart/{userid}")
+    Collection<Cart> findCartByUserId(@Param("userid") String userid);
+
+    @RequestLine("DELETE deleteFromCatalog")
+    void deleteProductFromCatalog(@Valid @RequestBody(required = true) Product product);
 }

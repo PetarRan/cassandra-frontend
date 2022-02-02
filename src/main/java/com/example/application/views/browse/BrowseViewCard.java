@@ -73,7 +73,7 @@ public class BrowseViewCard extends LitTemplate {
             Cart cart = new Cart();
             cart.setId(product.getId());
             cart.setDescription(product.getDescription());
-            cart.setLocation(product.getContinent() + " " + product.getCountry() + " " + product.getCity());
+            cart.setLocation(product.getContinent() + ", " + product.getCountry() + ", " + product.getCity());
             cart.setUserId(username);
             cart.setPrice(product.getPrice());
             productFeignClient.addToCart(cart);

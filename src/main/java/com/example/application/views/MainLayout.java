@@ -1,13 +1,19 @@
 package com.example.application.views;
 
 
+import com.example.application.data.model.User;
+import com.example.application.feign_client.UserFeignClient;
 import com.example.application.views.browse.BrowseView;
 import com.example.application.views.cart.CartView;
 import com.example.application.views.browse.HistoryView;
 import com.example.application.views.cart.SellView;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.dialog.Dialog;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Header;
@@ -15,9 +21,14 @@ import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 import com.vaadin.flow.server.PWA;
+import com.vaadin.flow.server.VaadinServletService;
 import com.vaadin.flow.theme.Theme;
 
 /**
@@ -27,6 +38,9 @@ import com.vaadin.flow.theme.Theme;
 @Theme(themeFolder = "souvenirshop")
 @PageTitle("Main")
 public class MainLayout extends AppLayout {
+
+    private final UserFeignClient userFeignClient;
+    Dialog popUpDialog = new Dialog();
 
     /**
      * A simple navigation item component, based on ListItem element.
@@ -71,10 +85,56 @@ public class MainLayout extends AppLayout {
 
     }
 
-    public MainLayout() {
+    public MainLayout(UserFeignClient userFeignClientl, UserFeignClient userFeignClient) {
+        this.userFeignClient = userFeignClient;
 
         addToNavbar(createHeaderContent());
-        //TODO username?
+        usernamePopUp();
+    }
+
+    private void usernamePopUp() {
+        popUpDialog = new Dialog();
+        popUpDialog.setWidth("250px");
+        popUpDialog.setHeight("250x");
+        FormLayout formLayout = new FormLayout();
+        TextField username = new TextField();
+        username.setRequired(true);
+        username.setLabel("Choose a Username: ");
+        formLayout.add(username);
+        Button login = new Button("Login", VaadinIcon.ARROW_RIGHT.create());
+
+        login.addClickListener(loginClick -> {
+            if(!username.isEmpty()){
+                if(userFeignClient.findByUsername(username.getValue()) != null){
+                    notificationPop("Welcome back " + username.getValue());
+
+                } else {
+                    User user = new User();
+                    user.setUserId(username.getValue());
+                    userFeignClient.addUser(user);
+
+                    notificationPop("User Created: " + username.getValue() + ". Welcome!");
+                }
+                VaadinServletService.getCurrentServletRequest().getSession()
+                        .setAttribute("username", username.getValue());
+                UI.getCurrent().navigate("Browse");
+                popUpDialog.close();
+            }
+        });
+
+        formLayout.add(username, login);
+        popUpDialog.setCloseOnEsc(false);
+        popUpDialog.setCloseOnOutsideClick(false);
+        popUpDialog.add(formLayout);
+        popUpDialog.open();
+    }
+
+    private void notificationPop(String s) {
+        Notification notification = new Notification(s);
+        notification.setDuration(5000);
+        notification.setPosition(Notification.Position.TOP_CENTER);
+        notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+        notification.open();
     }
 
     private Component createHeaderContent() {
