@@ -30,17 +30,17 @@ This is the frontend of the [Souvenir Shop](https://github.com/PetarRan/cassandr
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/yourusername/souvenir-shop-frontend/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/PetarRan/cassandra-frontend/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
-- **Your Name** - *Initial work* - [Yourusername](https://github.com/yourusername)
+- **PetarRan** - [PetarRan](https://github.com/PetarRan)
 
-See also the list of [contributors](https://github.com/yourusername/souvenir-shop-frontend/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/PetarRan/cassandra-frontend/contributors) who participated in this project.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/yourusername/souvenir-shop-frontend/blob/master/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/PetarRan/cassandra-frontend/blob/master/LICENSE) file for details.
 
 ## Acknowledgments
 
