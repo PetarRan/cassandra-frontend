@@ -30,7 +30,7 @@ This is the frontend of the [Souvenir Shop](https://github.com/PetarRan/cassandr
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](https://github.com/PetarRan/cassandra-frontend/blob/master/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
+Please read [CONTRIBUTING.md](https://github.com/PetarRan/cassandra-frontend/blob/main/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull requests to us.
 
 ## Authors
 
