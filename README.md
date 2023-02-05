@@ -1,5 +1,7 @@
 # Souvenir Shop - Frontend
 
+![image](https://user-images.githubusercontent.com/70757499/216840754-5c1859de-2e8e-4a4d-9962-8290efd240b5.png)
+
 This is the frontend of the [Souvenir Shop](https://github.com/PetarRan/cassandra-project) application built using Java Vaadin Flow Framework and it communicates with the backend which is built using Spring Boot and Cassandra as the database. The main focus of the project is to showcase the ability of Cassandra's clustering and partitioning keys in handling large amounts of data.
 
 
